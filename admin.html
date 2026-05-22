@@ -10,8 +10,17 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="admin.css" />
+  <style>
+    /* CMS rejtve, amíg az auth script fel nem oldja (FOUC / hidden override ellen) */
+    body[data-page="admin"]:not([data-admin-authenticated]) #admin-app {
+      display: none !important;
+    }
+    body[data-page="admin"][data-admin-authenticated] #admin-login {
+      display: none !important;
+    }
+  </style>
 </head>
-<body data-page="admin">
+<body data-page="admin" data-admin-locked>
   <section id="admin-login" class="admin-login">
     <div class="admin-login__card">
       <h1 class="admin-login__title">Tartalom kezelés</h1>
@@ -54,17 +63,18 @@
       4. Frissítsd az <a href="index.html">index</a> oldalt — a <code>works-loader.js</code> onnan tölti az adatot.
     </div>
 
-    <div class="admin-toolbar">
-      <button type="button" class="admin-btn admin-btn--ghost" id="btn-reload">Reload JSON</button>
-      <button type="button" class="admin-btn admin-btn--ghost" id="btn-pick-media-folder">Select media/ folder</button>
-      <button type="button" class="admin-btn" id="btn-add-project">Add project</button>
-      <button type="button" class="admin-btn admin-btn--primary" id="btn-save-json">Save works.json</button>
-      <button type="button" class="admin-btn admin-btn--ghost" id="btn-download-json">Download JSON</button>
-      <button type="button" class="admin-btn admin-btn--ghost" id="btn-restore-draft">Restore draft</button>
+    <div class="admin-toolbar admin-toolbar--primary">
+      <button type="button" class="admin-btn admin-btn--save" id="btn-save-json">Save works.json</button>
       <span class="admin-status" id="admin-status" aria-live="polite">Loading…</span>
     </div>
+    <div class="admin-toolbar admin-toolbar--secondary">
+      <button type="button" class="admin-btn admin-btn--ghost admin-btn--minor" id="btn-reload">Reload JSON</button>
+      <button type="button" class="admin-btn admin-btn--ghost admin-btn--minor" id="btn-download-json">Download JSON</button>
+      <button type="button" class="admin-btn admin-btn--ghost admin-btn--minor" id="btn-restore-draft">Restore draft</button>
+      <button type="button" class="admin-btn admin-btn--ghost admin-btn--minor" id="btn-pick-media-folder">Select media/ folder</button>
+    </div>
 
-    <div class="admin-projects" id="admin-projects"></div>
+    <div class="admin-sections" id="admin-projects"></div>
 
     <details class="admin-json-panel">
       <summary>Raw JSON editor</summary>

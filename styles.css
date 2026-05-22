@@ -1262,11 +1262,8 @@ body {
 
 .work-card--gallery .work-card-media {
   position: absolute;
-  top: clamp(14px, 2vw, 20px);
-  right: clamp(14px, 2vw, 20px);
-  bottom: clamp(14px, 2vw, 20px);
-  left: clamp(14px, 2vw, 20px);
-  border-radius: clamp(22px, 3vw, 32px);
+  inset: 0;
+  border-radius: 0;
   background-color: #b8b3bc;
   z-index: 1;
   pointer-events: none;
@@ -1292,6 +1289,14 @@ body {
 
 @media (hover: hover) {
   .work-card--gallery:hover .work-card-panel--gallery,
+  .work-card--gallery.is-media-hovered .work-card-panel--gallery {
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+
+@media (hover: none) {
+  .work-card--gallery:focus-within .work-card-panel--gallery,
   .work-card--gallery.is-media-hovered .work-card-panel--gallery {
     transform: translateY(0);
     pointer-events: auto;
@@ -1326,7 +1331,11 @@ body {
   margin: 0;
 }
 
-.work-card--gallery .work-card-pill {
+.work-card--gallery .work-card-pill,
+.work-card--gallery .work-card-link.work-card-pill {
+  pointer-events: auto;
+  position: relative;
+  z-index: 4;
   flex-shrink: 0;
   margin: 0;
   padding: 10px 18px;
@@ -1386,7 +1395,17 @@ body {
   }
 }
 
+/* Placeholder / missing image: full-bleed media (no inset frame) */
 .work-card--gallery .work-card-media--placeholder {
+  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
   background-color: #b8b3bc;
   background-image: none;
 }
@@ -2191,14 +2210,43 @@ body {
 /* ===========================
    SHOWREEL — dynamic video + caption
 =========================== */
-.work-video-el {
+#show-reel .work-video::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: min(46%, clamp(140px, 32vw, 260px));
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    to top,
+    rgba(26, 23, 34, 0.88) 0%,
+    rgba(26, 23, 34, 0.5) 38%,
+    rgba(26, 23, 34, 0) 100%
+  );
+}
+
+#show-reel .work-play {
+  z-index: 2;
+}
+
+.work-video-el,
+.work-video-embed {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
   border-radius: inherit;
   z-index: 0;
+}
+
+.work-video-el {
+  object-fit: cover;
+}
+
+.work-video-embed {
+  border: 0;
 }
 
 .work-video-caption {
@@ -2243,88 +2291,6 @@ body {
 .work-play {
   position: relative;
   z-index: 1;
-}
-
-/* ===========================
-   FEATURED — two-column block
-=========================== */
-.work--featured {
-  padding-top: clamp(48px, 8vw, 96px);
-  padding-bottom: clamp(48px, 8vw, 96px);
-}
-
-.work-title-link {
-  color: inherit;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.work-title-link:hover {
-  color: var(--accent-lavender);
-}
-
-.featured-lead {
-  font-family: var(--font-mono);
-  font-size: clamp(12px, 1.2vw, 14px);
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.88);
-  max-width: 52ch;
-  margin: -1rem 0 clamp(28px, 4vw, 40px);
-}
-
-.featured-split {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(16px, 2.5vw, 24px);
-  width: 100%;
-}
-
-.featured-media {
-  position: relative;
-  border-radius: 40px;
-  overflow: hidden;
-  aspect-ratio: 4 / 5;
-  background-color: #b8b3bc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.featured-media img,
-.featured-video-el {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.featured-media-placeholder {
-  font-size: clamp(48px, 8vw, 72px);
-  color: rgba(26, 23, 34, 0.35);
-  line-height: 1;
-}
-
-.featured-media-cta {
-  position: absolute;
-  left: clamp(16px, 2.5vw, 24px);
-  bottom: clamp(16px, 2.5vw, 24px);
-  z-index: 2;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-white);
-  text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: 50px;
-  padding: 10px 18px;
-  background: rgba(26, 23, 34, 0.5);
-  backdrop-filter: blur(6px);
-}
-
-.featured-media-cta:hover {
-  background: rgba(143, 91, 255, 0.65);
 }
 
 .work-card-link {
@@ -2489,14 +2455,4 @@ body[data-page="work"] {
   border: 1px solid rgba(143, 91, 255, 0.85);
   border-radius: 50px;
   padding: 8px 14px;
-}
-
-@media (max-width: 900px) {
-  .featured-split {
-    grid-template-columns: 1fr;
-  }
-
-  .featured-media {
-    aspect-ratio: 16 / 10;
-  }
 }

@@ -14,17 +14,36 @@
   const errorEl = document.getElementById('admin-login-error');
   const passwordInput = document.getElementById('admin-password');
 
+  function lockUi() {
+    document.body.removeAttribute('data-admin-authenticated');
+    document.body.setAttribute('data-admin-locked', '');
+    loginEl?.removeAttribute('hidden');
+    appEl?.setAttribute('hidden', '');
+    if (appEl) appEl.setAttribute('aria-hidden', 'true');
+    if (loginEl) loginEl.removeAttribute('aria-hidden');
+  }
+
   function isAuthenticated() {
-    return sessionStorage.getItem(SESSION_KEY) === 'ok';
+    try {
+      return sessionStorage.getItem(SESSION_KEY) === 'ok';
+    } catch (_) {
+      return false;
+    }
   }
 
   function setAuthenticated() {
-    sessionStorage.setItem(SESSION_KEY, 'ok');
+    try {
+      sessionStorage.setItem(SESSION_KEY, 'ok');
+    } catch (_) {}
   }
 
   function showApp() {
+    document.body.setAttribute('data-admin-authenticated', '');
+    document.body.removeAttribute('data-admin-locked');
     loginEl?.setAttribute('hidden', '');
+    if (loginEl) loginEl.setAttribute('aria-hidden', 'true');
     appEl?.removeAttribute('hidden');
+    if (appEl) appEl.removeAttribute('aria-hidden');
     document.dispatchEvent(new CustomEvent('portfolio-admin-authenticated'));
   }
 
@@ -57,12 +76,11 @@
   }
 
   function init() {
+    lockUi();
     if (isAuthenticated()) {
       showApp();
       return;
     }
-    appEl?.setAttribute('hidden', '');
-    loginEl?.removeAttribute('hidden');
     form?.addEventListener('submit', handleLogin);
   }
 

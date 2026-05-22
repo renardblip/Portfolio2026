@@ -15,8 +15,21 @@
       .replace(/"/g, '&quot;');
   }
 
+  /** Site-root relative media path (works from index.html and work.html). */
+  function resolveMediaUrl(path) {
+    const raw = String(path || '').trim();
+    if (!raw) return '';
+    if (/^https?:\/\//i.test(raw) || raw.startsWith('data:') || raw.startsWith('blob:')) {
+      return raw;
+    }
+    const cleaned = raw.replace(/^\.\//, '');
+    if (cleaned.startsWith('/')) return cleaned;
+    return cleaned;
+  }
+
   function galleryMediaImage(project) {
-    return project.media?.image || project.featured?.image || '';
+    const m = project.media || {};
+    return resolveMediaUrl(m.image || m.poster || '');
   }
 
   function galleryMediaHtml(project) {
@@ -25,19 +38,28 @@
       return '<div class="work-card-media work-card-media--placeholder" aria-hidden="true"></div>';
     }
     const safe = escapeHtml(img);
-    return `<div class="work-card-media"><img class="work-card-media-img" src="${safe}" alt="" loading="lazy" decoding="async" /></div>`;
+    return `<div class="work-card-media"><img class="work-card-media-img" src="${safe}" alt="" loading="lazy" decoding="async" data-gallery-img /></div>`;
+  }
+
+  function bindGalleryCardImageFallback(card) {
+    const img = card.querySelector('[data-gallery-img]');
+    if (!img || img.dataset.fallbackBound === '1') return;
+    img.dataset.fallbackBound = '1';
+    img.addEventListener('error', () => {
+      const media = img.closest('.work-card-media');
+      if (!media) return;
+      media.classList.add('work-card-media--placeholder');
+      media.classList.remove('work-card-media--broken');
+      img.remove();
+    });
   }
 
   function mediaStyle(project) {
-    const img =
-      project.media?.image ||
-      project.featured?.image ||
-      '';
+    const img = resolveMediaUrl(project.media?.image || project.media?.poster || '');
     if (img) {
       return `background-image:url('${img.replace(/'/g, "\\'")}');background-size:cover;background-position:center;`;
     }
     const hues = {
-      'card-reader': 'linear-gradient(135deg,#362A55 0%,#8F5BFF 55%,#F46D7D 100%)',
       'contrast-theory': 'linear-gradient(160deg,#1A1722 0%,#6947B2 45%,#FB9718 100%)',
       'neo-brutal': 'linear-gradient(145deg,#442C53 0%,#8F5BFF 100%)',
       'gen-motion': 'linear-gradient(120deg,#1A1722 30%,#8F5BFF 70%,#FB9718 100%)',
@@ -84,6 +106,40 @@
     return hash || null;
   }
 
+  function parseVideoEmbedUrl(url) {
+    const u = String(url || '').trim();
+    if (!u) return null;
+    let m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{6,})/);
+    if (m) {
+      return {
+        type: 'youtube',
+        embed: `https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`,
+        watch: `https://www.youtube.com/watch?v=${m[1]}`,
+      };
+    }
+    m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (m) {
+      return {
+        type: 'vimeo',
+        embed: `https://player.vimeo.com/video/${m[1]}?autoplay=1`,
+        watch: `https://vimeo.com/${m[1]}`,
+      };
+    }
+    if (/^https?:\/\//i.test(u)) {
+      return { type: 'link', embed: null, watch: u };
+    }
+    return null;
+  }
+
+  function showreelExternalUrl(project) {
+    return (
+      project.showreelUrl ||
+      (project.media?.video && /^https?:\/\//i.test(project.media.video)
+        ? project.media.video
+        : '')
+    );
+  }
+
   function renderShowreel(project) {
     const section = document.getElementById('show-reel');
     const mount = document.getElementById('showreel-video-mount');
@@ -96,11 +152,27 @@
     if (heading) heading.textContent = project.title || 'SHOW REEL';
     if (tagEl && project.tag) tagEl.textContent = project.tag;
 
-    const videoSrc = project.media?.video;
-    const poster = project.media?.poster || '';
-    let video = mount.querySelector('video');
+    const externalUrl = showreelExternalUrl(project);
+    const embedInfo = parseVideoEmbedUrl(externalUrl);
+    const posterImage = project.media?.poster || project.media?.image || '';
+    const localVideo = project.media?.video && !/^https?:\/\//i.test(project.media.video)
+      ? resolveMediaUrl(project.media.video)
+      : '';
 
-    if (videoSrc) {
+    mount.querySelector('.work-video-embed')?.remove();
+    let video = mount.querySelector('video.work-video-el');
+    let linkEl = mount.querySelector('.work-video-link');
+
+    if (posterImage) {
+      const posterUrl = resolveMediaUrl(posterImage);
+      mount.style.backgroundImage = `url('${posterUrl.replace(/'/g, "\\'")}')`;
+      mount.style.backgroundSize = 'cover';
+      mount.style.backgroundPosition = 'center';
+    } else {
+      mount.style.backgroundImage = '';
+    }
+
+    if (localVideo) {
       if (!video) {
         video = document.createElement('video');
         video.className = 'work-video-el';
@@ -108,8 +180,8 @@
         video.preload = 'metadata';
         mount.insertBefore(video, mount.firstChild);
       }
-      video.src = videoSrc;
-      if (poster) video.poster = poster;
+      video.src = localVideo;
+      if (project.media?.poster) video.poster = project.media.poster;
       video.hidden = true;
     } else if (video) {
       video.remove();
@@ -126,30 +198,62 @@
       }
     }
 
-    const link = project.link || (project.slug ? workUrl(project.slug) : null);
-    let linkEl = mount.querySelector('.work-video-link');
-    if (link) {
+    const detailLink = project.link || (project.slug ? workUrl(project.slug) : null);
+    const watchUrl = embedInfo?.watch || externalUrl || detailLink;
+
+    if (watchUrl && !embedInfo?.embed) {
+      if (!linkEl) {
+        linkEl = document.createElement('a');
+        linkEl.className = 'work-video-link';
+        linkEl.target = '_blank';
+        linkEl.rel = 'noopener noreferrer';
+        mount.appendChild(linkEl);
+      }
+      linkEl.textContent = 'Watch showreel';
+      linkEl.href = watchUrl;
+      linkEl.hidden = false;
+    } else if (linkEl && !detailLink) {
+      linkEl.hidden = true;
+    } else if (detailLink) {
       if (!linkEl) {
         linkEl = document.createElement('a');
         linkEl.className = 'work-video-link';
         linkEl.textContent = 'View project';
         mount.appendChild(linkEl);
       }
-      linkEl.href = link;
+      linkEl.href = detailLink;
       linkEl.hidden = false;
-    } else if (linkEl) {
-      linkEl.hidden = true;
+      linkEl.removeAttribute('target');
+      linkEl.removeAttribute('rel');
     }
 
     if (playBtn) {
+      playBtn.hidden = false;
       playBtn.onclick = () => {
+        if (embedInfo?.embed) {
+          const iframe = document.createElement('iframe');
+          iframe.className = 'work-video-embed';
+          iframe.src = embedInfo.embed;
+          iframe.title = project.title || 'Show reel';
+          iframe.allow =
+            'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+          iframe.allowFullscreen = true;
+          mount.insertBefore(iframe, mount.firstChild);
+          playBtn.hidden = true;
+          if (captionEl) captionEl.hidden = true;
+          return;
+        }
         if (video) {
           video.hidden = false;
           playBtn.hidden = true;
           video.play().catch(() => {});
           return;
         }
-        if (link) window.location.href = link;
+        if (watchUrl) {
+          window.open(watchUrl, '_blank', 'noopener,noreferrer');
+          return;
+        }
+        if (detailLink) window.location.href = detailLink;
       };
     }
   }
@@ -171,18 +275,31 @@
     track.querySelectorAll('.work-card--gallery').forEach(bindGalleryCardHover);
   }
 
+  function projectDetailHref(project) {
+    const slug = project?.slug;
+    if (!slug) return null;
+    const external = project.link && /^https?:\/\//i.test(project.link) ? project.link : null;
+    return external || workUrl(slug);
+  }
+
   function renderGalleryCard(project) {
     const category = project.category || 'case-study';
     const name = project.title || project.id;
     const desc = project.caption || project.description || '';
     const slug = project.slug;
+    const detailHref = projectDetailHref(project);
     const article = document.createElement('article');
     article.className = 'work-card work-card--gallery';
     if (category === 'service') article.classList.add('work-card--service');
     article.tabIndex = 0;
     article.dataset.worksCategory = category;
-    article.dataset.slug = slug;
+    if (slug) article.dataset.slug = slug;
+    if (detailHref) article.dataset.href = detailHref;
     if (category === 'service') article.hidden = true;
+
+    const openLink = detailHref
+      ? `<a class="work-card-link work-card-pill" href="${escapeHtml(detailHref)}">Open project</a>`
+      : '';
 
     article.innerHTML = `
       <div class="work-card-flip">
@@ -191,7 +308,7 @@
           <div class="work-card-panel work-card-panel--gallery">
             <header class="work-card-panel-head">
               <h3 class="work-card-name">${escapeHtml(name)}</h3>
-              <a class="work-card-link work-card-pill" href="${escapeHtml(workUrl(slug))}">Open project</a>
+              ${openLink}
             </header>
             <hr class="work-card-rule" aria-hidden="true" />
             <p class="work-card-desc">${escapeHtml(desc)}</p>
@@ -200,6 +317,7 @@
       </div>
     `;
     bindGalleryCardHover(article);
+    bindGalleryCardImageFallback(article);
     return article;
   }
 
@@ -259,11 +377,16 @@
       .map((t) => `<span class="work-detail-tag">${escapeHtml(t)}</span>`)
       .join('');
 
-    const videoSrc = project.media?.video || project.featured?.video;
-    const imageSrc = project.media?.image || project.featured?.image;
+    const videoSrc =
+      project.type !== 'gallery' && project.media?.video
+        ? resolveMediaUrl(project.media.video)
+        : '';
+    const imageSrc = resolveMediaUrl(
+      project.media?.image || project.media?.poster || ''
+    );
 
     let mediaHtml = '';
-    if (videoSrc) {
+    if (videoSrc && !/^https?:\/\//i.test(videoSrc)) {
       mediaHtml = `<video class="work-detail-video" src="${escapeHtml(videoSrc)}" controls playsinline></video>`;
     } else if (imageSrc) {
       mediaHtml = `<img class="work-detail-image" src="${escapeHtml(imageSrc)}" alt="" />`;

@@ -373,7 +373,8 @@ function initPortfolioWorksGallery() {
   });
 
   scroller.addEventListener('click', (e) => {
-    if (e.target.closest('.work-card-link')) return;
+    const link = e.target.closest('.work-card-link, .work-card-pill');
+    if (link) return;
     const card = e.target.closest('.work-card');
     if (!card) return;
     if (mqMobile.matches) {
@@ -392,11 +393,17 @@ function initPortfolioWorksGallery() {
   scroller.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     const card = e.target.closest('.work-card');
-    if (!card || e.target.closest('.work-card-link')) return;
-    const link = card.querySelector('.work-card-link');
+    if (!card || e.target.closest('.work-card-link, .work-card-pill')) return;
+    const link = card.querySelector('.work-card-link, .work-card-pill');
     if (link && document.activeElement === card) {
       e.preventDefault();
       link.click();
+      return;
+    }
+    const href = card.dataset.href;
+    if (href && document.activeElement === card) {
+      e.preventDefault();
+      window.location.href = href;
     }
   });
 }
