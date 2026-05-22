@@ -232,6 +232,13 @@ body {
   z-index: 5;
 }
 
+/* SHOWREEL + SERVICES: 100px higher than default .work top padding */
+#show-reel,
+#service {
+  padding-top: 100px;
+  scroll-margin-top: calc(var(--nav-top) + 24px - 100px);
+}
+
 .work-gradient {
   position: absolute;
   top: 0;
