@@ -6,32 +6,17 @@
       "title": "SHOW REEL",
       "type": "showreel",
       "tag": "CASE STUDY",
+      "showreelUrl": "",
       "media": {
-        "video": "media/showreel.mp4",
-        "poster": ""
+        "poster": "",
+        "image": ""
       },
       "caption": "Motion, product UI, and generative systems — 2024–2026 highlights.",
       "description": "A curated reel of hybrid design work spanning fintech UI, campaign motion, and AI-assisted prototyping pipelines.",
-      "tags": ["Motion", "Product", "Generative"],
+      "tags": [
+        "Product"
+      ],
       "link": null
-    },
-    {
-      "id": "card-reader",
-      "slug": "card-reader",
-      "title": "Card Reader",
-      "type": "featured",
-      "tag": "FEATURED",
-      "featured": {
-        "image": "",
-        "video": ""
-      },
-      "media": {
-        "image": ""
-      },
-      "caption": "Physical-digital checkout experience for a European fintech pilot.",
-      "description": "End-to-end product design for a contactless card reader: hardware silhouette, on-device UI, and merchant dashboard flows. High-contrast brutal layout with motion-led state feedback.",
-      "tags": ["Product", "Fintech", "Hardware"],
-      "link": "work.html?slug=card-reader"
     },
     {
       "id": "contrast-theory",
@@ -41,11 +26,13 @@
       "category": "case-study",
       "chip": "Brand",
       "media": {
-        "image": ""
+        "image": "media/geofield.jpg"
       },
       "caption": "Typographic identity system built on extreme light/dark pairs.",
-      "description": "A modular identity exploring simultaneous contrast, variable display type, and monolithic grid templates for editorial and product surfaces.",
-      "tags": ["Typography", "Identity", "Print"]
+      "description": "GAMEEEE",
+      "tags": [
+        "Print"
+      ]
     },
     {
       "id": "neo-brutal",
@@ -59,7 +46,11 @@
       },
       "caption": "High-contrast product UI for a fintech launch",
       "description": "Dashboard and marketing surfaces for a neo-brutalist fintech brand — tokenized color, oversized type, and motion micro-states tied to transaction outcomes.",
-      "tags": ["UI", "Fintech", "Design systems"]
+      "tags": [
+        "UI",
+        "Fintech",
+        "Design systems"
+      ]
     },
     {
       "id": "gen-motion",
@@ -73,7 +64,11 @@
       },
       "caption": "Generative loops and campaign motion system",
       "description": "Procedural motion toolkit for social and OOH: GLSL-driven loops, Lottie handoff, and a shared easing library for in-product states.",
-      "tags": ["Motion", "GLSL", "Campaign"]
+      "tags": [
+        "Motion",
+        "GLSL",
+        "Campaign"
+      ]
     },
     {
       "id": "brutal-ui",
@@ -87,7 +82,11 @@
       },
       "caption": "Monolithic layout system for a SaaS dashboard",
       "description": "12-column brutal grid, component stubs, and WCAG-tested contrast pairs shipped as Figma variables and React scaffolds.",
-      "tags": ["Product", "SaaS", "Accessibility"]
+      "tags": [
+        "Product",
+        "SaaS",
+        "Accessibility"
+      ]
     },
     {
       "id": "type-lab",
@@ -101,7 +100,10 @@
       },
       "caption": "Experimental lettering for digital spaces",
       "description": "Display lettering studies for hero modules and motion titles — exportable SVG paths and variable font axes for live sites.",
-      "tags": ["Typography", "Experimental"]
+      "tags": [
+        "Typography",
+        "Experimental"
+      ]
     },
     {
       "id": "brand-systems",
@@ -115,7 +117,10 @@
       },
       "caption": "End-to-end visual identity for startups and products",
       "description": "Logo, type, color, and application templates delivered with semantic tokens and engineer-ready export packages.",
-      "tags": ["Identity", "Service"]
+      "tags": [
+        "Identity",
+        "Service"
+      ]
     },
     {
       "id": "product-ui",
@@ -129,7 +134,11 @@
       },
       "caption": "Interface design from wireframes to dev-ready specs",
       "description": "Discovery through handoff: flows, high-fidelity UI, Storybook stories, and Code Connect mappings for product teams.",
-      "tags": ["UX", "UI", "Service"]
+      "tags": [
+        "UX",
+        "UI",
+        "Service"
+      ]
     },
     {
       "id": "motion-pack",
@@ -143,7 +152,10 @@
       },
       "caption": "Campaign loops, explainers, and generative motion kits",
       "description": "10-day motion sprint deliverables: hero loops, UI micro-pack, guidelines PDF, and shared JSON preset library.",
-      "tags": ["Motion", "Service"]
+      "tags": [
+        "Motion",
+        "Service"
+      ]
     }
   ]
 }
