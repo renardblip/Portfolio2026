@@ -66,17 +66,27 @@ function initPortfolioWorksGallery() {
 
   let maxTx = 0;
   let scrubD = 1;
+  let scrubStartScrollY = null;
+  let scrubSpanPx = null;
   let manualTx = 0;
   let galleryManualLock = false;
-  const WORKS_FINISH_SCROLL_D = 420;
   const WORKS_END_THRESHOLD_PX = 4;
   let rafId = 0;
   let manualAnimToken = 0;
   let manualAnimating = false;
 
   function measureAll() {
+    const prevMaxTx = maxTx;
     updateMeasures();
     updateScrubDistance();
+    if (
+      prevMaxTx <= 0 &&
+      maxTx > 0 &&
+      reel.getBoundingClientRect().top <= 0 &&
+      worksGalleryProgress() < 1 - 0.002
+    ) {
+      resetWorksScrubAnchors();
+    }
     requestAnimationFrame(() => {
       applyTransform();
     });
@@ -175,16 +185,19 @@ function initPortfolioWorksGallery() {
     const s = getComputedStyle(scroller);
     const padL = parseFloat(s.paddingLeft) || 0;
     const padR = parseFloat(s.paddingRight) || 0;
-    const rectW = scroller.getBoundingClientRect().width;
-    const w = rectW > 0 ? rectW : scroller.clientWidth;
+    const w =
+      scroller.offsetWidth > 0
+        ? scroller.offsetWidth
+        : scroller.getBoundingClientRect().width;
     return Math.max(0, w - padL - padR);
   }
 
   function updateMeasures() {
     const viewW = worksScrollViewportWidth();
     const cards = track.querySelectorAll('.work-card:not([hidden])');
+    const first = cards[0];
     const last = cards[cards.length - 1];
-    if (!last || viewW <= 0) {
+    if (!first || !last || viewW <= 0) {
       maxTx = 0;
       return;
     }
@@ -192,48 +205,79 @@ function initPortfolioWorksGallery() {
     const endPad =
       parseFloat(ts.paddingInlineEnd) || parseFloat(ts.paddingRight) || 0;
     const lastRight = last.offsetLeft + last.offsetWidth;
-    const fromLast = Math.max(0, lastRight + endPad - viewW);
+    const contentRight = lastRight + endPad;
+    const fromLast = Math.max(0, contentRight - viewW);
     const fromScroll = Math.max(0, track.scrollWidth - viewW);
-    maxTx = Math.ceil(Math.max(fromScroll, fromLast));
+    maxTx = Math.ceil(Math.max(fromLast, fromScroll));
   }
 
-  /** Works layout alja elérte / átlépte a nézet alját */
+  function resetWorksScrubAnchors() {
+    scrubStartScrollY = null;
+    scrubSpanPx = null;
+  }
+
+  /** Works layout alja elérte a nézet alját (scrub kész, kézi mód) */
   function worksFinishZoneActive() {
-    if (!worksLayout) return scrubProgress() >= 1 - 0.002;
-    return (
-      worksLayout.getBoundingClientRect().bottom <=
-      window.innerHeight + WORKS_END_THRESHOLD_PX
-    );
+    return worksGalleryProgress() >= 1 - 0.002;
   }
 
-  /** 0 → works bottom at viewport; 1 → scrolled WORKS_FINISH_SCROLL_D px past that */
-  function worksFinishZoneProgress() {
-    if (!worksLayout) return clamp(scrubProgress(), 0, 1);
-    const bottom = worksLayout.getBoundingClientRect().bottom;
-    const overscroll =
-      window.innerHeight + WORKS_END_THRESHOLD_PX - bottom;
-    if (overscroll <= 0) return 0;
-    return clamp(overscroll / WORKS_FINISH_SCROLL_D, 0, 1);
+  /** Scroll távolság: layout alja a nézet alján (scrub vége). */
+  function worksLayoutBottomGapPx() {
+    if (!worksLayout) return 0;
+    const vh = window.innerHeight + WORKS_END_THRESHOLD_PX;
+    return worksLayout.getBoundingClientRect().bottom - vh;
   }
 
-  /** Scrub p*maxTx, then finish zone: scroll-lerp toward maxTx */
-  function scrubTranslateX() {
+  /**
+   * Egy progress: 0 = WORKS scrub indul (reel teteje a nézet tetején), maxTx;
+   * 1 = layout alja a nézet alján, tx = 0 (első kártya).
+   * A teljes WORKS görgetési szakaszon lineáris (scrollY), nem csak a régi scrubD ablakban.
+   */
+  function worksGalleryProgress() {
     const reelTop = reel.getBoundingClientRect().top;
-    const p = clamp(-reelTop / scrubD, 0, 1);
-    const scrubTx = p * maxTx;
-    if (!worksFinishZoneActive()) return scrubTx;
-    const fp = worksFinishZoneProgress();
-    return scrubTx + (maxTx - scrubTx) * fp;
+    if (reelTop > 0) {
+      resetWorksScrubAnchors();
+      return 0;
+    }
+
+    if (!worksLayout) {
+      return clamp(-reelTop / scrubD, 0, 1);
+    }
+
+    const gap = worksLayoutBottomGapPx();
+    if (gap <= 0) return 1;
+
+    if (maxTx <= 0) return 0;
+
+    if (scrubStartScrollY == null) {
+      scrubStartScrollY = window.scrollY;
+      scrubSpanPx = Math.max(1, gap);
+    } else if (gap > scrubSpanPx) {
+      const traveled = window.scrollY - scrubStartScrollY;
+      const pNow = clamp(traveled / scrubSpanPx, 0, 1);
+      scrubSpanPx = gap;
+      scrubStartScrollY = window.scrollY - pNow * scrubSpanPx;
+    }
+
+    return clamp((window.scrollY - scrubStartScrollY) / scrubSpanPx, 0, 1);
+  }
+
+  function scrubTranslateX() {
+    return (1 - worksGalleryProgress()) * maxTx;
   }
 
   function updateScrubDistance() {
-    scrubD = Math.max(1, portfolio.offsetTop - reel.offsetTop);
+    if (worksLayout) {
+      const gap = worksLayoutBottomGapPx();
+      const reelTop = reel.getBoundingClientRect().top;
+      scrubD = Math.max(1, gap + Math.max(0, -reelTop));
+    } else {
+      scrubD = Math.max(1, portfolio.offsetTop - reel.offsetTop);
+    }
   }
 
   function scrubProgress() {
-    const reelTop = reel.getBoundingClientRect().top;
-    if (reelTop > 0) return 0;
-    return clamp(-reelTop / scrubD, 0, 1);
+    return worksGalleryProgress();
   }
 
   /** Manual gallery (arrows / card tap): after scrub completes or layout fits in view */
@@ -362,6 +406,7 @@ function initPortfolioWorksGallery() {
     galleryManualLock = false;
     cancelManualAnimation();
     manualTx = 0;
+    resetWorksScrubAnchors();
     track.style.setProperty('--works-tx', '0px');
     measureAll();
   }
