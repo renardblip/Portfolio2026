@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Portfolio — tartalom kezelés</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body data-page="admin">
+  <section id="admin-login" class="admin-login">
+    <div class="admin-login__card">
+      <h1 class="admin-login__title">Tartalom kezelés</h1>
+      <p class="admin-login__lead">Csak adminisztrátorok számára. Add meg a jelszót a folytatáshoz.</p>
+      <form id="admin-login-form" class="admin-login__form" autocomplete="off">
+        <label class="admin-login__label" for="admin-password">Jelszó</label>
+        <input
+          id="admin-password"
+          class="admin-login__input"
+          type="password"
+          name="password"
+          required
+          autocomplete="current-password"
+        />
+        <p id="admin-login-error" class="admin-login__error" role="alert" aria-live="polite"></p>
+        <button type="submit" class="admin-btn admin-btn--primary admin-login__submit">Belépés</button>
+      </form>
+      <a href="index.html" class="admin-back admin-login__back">← Vissza a portfólióhoz</a>
+    </div>
+  </section>
+
+  <div id="admin-app" class="admin-page" hidden>
+    <a href="index.html" class="admin-back">← Vissza a portfólióhoz</a>
+
+    <header class="admin-header">
+      <h1>Tartalom &amp; feltöltések</h1>
+      <p class="admin-lead">
+        A portfólió statikus: a projektek a <code>data/works.json</code> fájlban vannak,
+        a képek és videók a <code>media/</code> mappában. Itt szerkesztheted a bejegyzéseket
+        és beállíthatod a fájlútvonalakat. A böngésző nem írja felül automatikusan a szerveren lévő fájlokat —
+        mentés után cseréld ki a letöltött <code>works.json</code>-t a projekt <code>data/</code> mappájában.
+      </p>
+    </header>
+
+    <div class="admin-note">
+      <strong>Gyors útmutató</strong><br />
+      1. Válaszd ki a <code>media/</code> mappát (Chrome / Edge), vagy másold kézzel a fájlokat oda.<br />
+      2. Projekt szerkesztése → fájl kiválasztása → „Save file to media/” (ha támogatott).<br />
+      3. <strong>Save works.json</strong> → mentsd <code>data/works.json</code> helyére a projektben.<br />
+      4. Frissítsd az <a href="index.html">index</a> oldalt — a <code>works-loader.js</code> onnan tölti az adatot.
+    </div>
+
+    <div class="admin-toolbar">
+      <button type="button" class="admin-btn admin-btn--ghost" id="btn-reload">Reload JSON</button>
+      <button type="button" class="admin-btn admin-btn--ghost" id="btn-pick-media-folder">Select media/ folder</button>
+      <button type="button" class="admin-btn" id="btn-add-project">Add project</button>
+      <button type="button" class="admin-btn admin-btn--primary" id="btn-save-json">Save works.json</button>
+      <button type="button" class="admin-btn admin-btn--ghost" id="btn-download-json">Download JSON</button>
+      <button type="button" class="admin-btn admin-btn--ghost" id="btn-restore-draft">Restore draft</button>
+      <span class="admin-status" id="admin-status" aria-live="polite">Loading…</span>
+    </div>
+
+    <div class="admin-projects" id="admin-projects"></div>
+
+    <details class="admin-json-panel">
+      <summary>Raw JSON editor</summary>
+      <textarea id="admin-json-raw" spellcheck="false"></textarea>
+      <div class="admin-toolbar" style="margin-top: 0.75rem;">
+        <button type="button" class="admin-btn" id="btn-apply-json">Apply JSON to form</button>
+      </div>
+    </details>
+  </div>
+
+  <script src="admin-auth.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

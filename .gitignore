@@ -1,0 +1,15 @@
+﻿# Local admin credentials (copy from admin-config.example.json)
+data/admin-config.json
+
+# Dependencies
+node_modules/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

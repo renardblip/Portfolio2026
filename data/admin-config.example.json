@@ -1,0 +1,4 @@
+{
+  "_comment": "Copy this file to admin-config.json in this folder. Set password. admin-config.json is gitignored — do not commit.",
+  "password": "your-secret-password-here"
+}
