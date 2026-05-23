@@ -1749,6 +1749,44 @@ body {
   flex-shrink: 0;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .title-reka,
+  .title-portfolio {
+    opacity: 0;
+    transform: translate3d(calc(-1 * clamp(16px, 3vw, 40px)), 0, 0);
+  }
+
+  .title-reka.title-reka--enter,
+  .title-portfolio.title-portfolio--enter {
+    animation: title-slide-in-left 1.05s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    will-change: opacity, transform;
+  }
+}
+
+@keyframes title-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translate3d(calc(-1 * clamp(16px, 3vw, 40px)), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-reka,
+  .title-portfolio {
+    opacity: 1;
+    transform: none;
+  }
+
+  .title-reka.title-reka--enter,
+  .title-portfolio.title-portfolio--enter {
+    animation: none;
+  }
+}
+
 .title-hi {
   display: block;
   /* SVG natural size: 169×169px (square) */
@@ -1756,6 +1794,35 @@ body {
   width: clamp(72px, 11.8vw, 169px);
   height: auto;
   flex-shrink: 0;
+  transform-origin: 0% 100%; /* bottom-left — tail toward Portfolio */
+  opacity: 0;
+  transform: rotate(15deg) scale(0.85);
+}
+
+.title-hi.title-hi--animate {
+  animation: hi-bubble-elastic 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes hi-bubble-elastic {
+  0% {
+    opacity: 0;
+    transform: rotate(15deg) scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-hi {
+    opacity: 1;
+    transform: none;
+  }
+
+  .title-hi.title-hi--animate {
+    animation: none;
+  }
 }
 
 .title-portfolio {
@@ -1784,6 +1851,44 @@ body {
   aspect-ratio: 683 / 1024;
   z-index: 1;
   pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .graphic-panel,
+  .hero-square-accent {
+    opacity: 0;
+    transform: translate3d(clamp(16px, 3vw, 40px), 0, 0);
+  }
+
+  .graphic-panel.graphic-panel--enter,
+  .hero-square-accent.hero-square-accent--enter {
+    animation: graphic-panel-enter 1.05s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    will-change: opacity, transform;
+  }
+}
+
+@keyframes graphic-panel-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(clamp(16px, 3vw, 40px), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .graphic-panel,
+  .hero-square-accent {
+    opacity: 1;
+    transform: none;
+  }
+
+  .graphic-panel.graphic-panel--enter,
+  .hero-square-accent.hero-square-accent--enter {
+    animation: none;
+  }
 }
 
 /* minta_bg.svg — legalsó réteg */

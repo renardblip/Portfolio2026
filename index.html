@@ -9,9 +9,81 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=3aa863a" />
+  <link rel="stylesheet" href="styles.css?v=e50c065" />
+  <link rel="stylesheet" href="terminal-entry.css?v=term17" />
+  <script>
+    (function () {
+      try {
+        var nav = performance.getEntriesByType('navigation')[0];
+        var isReload = nav && nav.type === 'reload';
+        if (isReload || !localStorage.getItem('portfolio-terminal-seen')) {
+          document.documentElement.classList.add('terminal-entry-active');
+        }
+      } catch (e) {
+        document.documentElement.classList.add('terminal-entry-active');
+      }
+    })();
+  </script>
 </head>
 <body>
+  <div
+    id="terminal-entry-overlay"
+    class="terminal-entry-overlay is-hidden"
+    hidden
+    aria-hidden="true"
+    role="dialog"
+    aria-label="Portfolio access gate"
+  >
+    <div class="terminal-entry-overlay__scene" data-terminal-scene>
+      <canvas class="terminal-entry__canvas" data-terminal-canvas aria-hidden="true"></canvas>
+
+      <div class="terminal-entry__corner terminal-entry__corner--tl" data-terminal-corner aria-hidden="true"></div>
+      <div class="terminal-entry__corner terminal-entry__corner--tr" data-terminal-corner aria-hidden="true"></div>
+      <div class="terminal-entry__corner terminal-entry__corner--bl" data-terminal-corner aria-hidden="true"></div>
+      <div class="terminal-entry__corner terminal-entry__corner--br" data-terminal-corner aria-hidden="true"></div>
+
+      <div class="terminal-entry__content" data-terminal-content>
+        <div class="terminal-entry__title-wrap">
+          <span class="terminal-entry__title-white" data-title-access>ACCESS</span><span class="terminal-entry__title-grad" data-title-required>REQUIRED</span>
+        </div>
+
+        <p class="terminal-entry__subtitle" data-subtitle>
+          This space is private. Prove you're on the same wavelength.
+        </p>
+
+        <div class="terminal-entry__card" data-terminal-card>
+          <p class="terminal-entry__card-label">WHO ARE YOU?</p>
+          <div class="terminal-entry__input-row">
+            <span class="terminal-entry__prompt" aria-hidden="true">❯</span>
+            <span class="terminal-entry__typed" data-terminal-typed></span>
+            <span class="terminal-entry__ghost" data-terminal-ghost hidden></span>
+            <span class="terminal-entry__cursor" data-terminal-cursor aria-hidden="true"></span>
+            <input
+              type="text"
+              class="terminal-entry__hidden-input"
+              data-terminal-input
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Enter your name"
+            />
+          </div>
+          <div class="terminal-entry__enter-hint is-dim" data-terminal-enter-hint>
+            <span class="terminal-entry__enter-key" data-terminal-enter-key>ENTER</span>
+            <span class="terminal-entry__enter-label">to enter</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="terminal-entry__welcome" data-terminal-welcome hidden>
+        <div class="terminal-entry__w-head">
+          <div class="terminal-entry__w-white">WELCOME</div>
+          <div class="terminal-entry__w-grad" data-welcome-name></div>
+        </div>
+        <p class="terminal-entry__w-sub">the door was never locked.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="page-container">
     <header class="site-header">
       <nav class="navbar" aria-label="Primary">
@@ -440,7 +512,9 @@
     </footer>
   </div>
 
+  <script src="terminal-entry-pixels.js?v=term03"></script>
+  <script src="terminal-entry.js?v=term23"></script>
   <script src="works-loader.js?v=bcbc945"></script>
-  <script src="script.js?v=bcbc945"></script>
+  <script src="script.js?v=33b5860"></script>
 </body>
 </html>

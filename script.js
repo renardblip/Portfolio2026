@@ -456,8 +456,16 @@ function initPortfolioWorksGallery() {
 document.addEventListener('works-content-ready', initPortfolioWorksGallery);
 document.addEventListener('DOMContentLoaded', initPortfolioWorksGallery);
 
+function whenPageRevealed(fn) {
+  if (!document.documentElement.classList.contains('terminal-entry-active')) {
+    fn();
+    return;
+  }
+  document.addEventListener('portfolio-terminal-entry-done', fn, { once: true });
+}
+
 /* ── Hero blokk — lefelé tolódás görgetésre (térbeli hatás) ─────── */
-(function () {
+whenPageRevealed(function () {
   const block = document.querySelector('.hero-block');
   if (!block) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -473,10 +481,66 @@ document.addEventListener('DOMContentLoaded', initPortfolioWorksGallery);
 
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
-})();
+});
+
+/* ── Hero HI bubble — elastic entrance ────────────────────────────── */
+whenPageRevealed(function () {
+  const hi = document.querySelector('.title-hi');
+  if (!hi) return;
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  setTimeout(function () {
+    hi.classList.add('title-hi--animate');
+  }, 200);
+});
+
+/* ── Hero titles Réka + Portfolio — slide + fade from left (sequenced) */
+whenPageRevealed(function () {
+  const reka = document.querySelector('.title-reka');
+  const portfolio = document.querySelector('.title-portfolio');
+  if (!reka && !portfolio) return;
+
+  const REKA_DELAY_MS = 400;
+  const PORTFOLIO_DELAY_MS = 600;
+
+  const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (mqReduce.matches) {
+    if (reka) reka.classList.add('title-reka--enter');
+    if (portfolio) portfolio.classList.add('title-portfolio--enter');
+    return;
+  }
+
+  setTimeout(function () {
+    if (reka) reka.classList.add('title-reka--enter');
+  }, REKA_DELAY_MS);
+
+  setTimeout(function () {
+    if (portfolio) portfolio.classList.add('title-portfolio--enter');
+  }, PORTFOLIO_DELAY_MS);
+});
+
+/* ── Hero graphic panel + square accent — slide + fade from right ─── */
+whenPageRevealed(function () {
+  const panel = document.querySelector('.graphic-panel');
+  const accent = document.querySelector('.hero-square-accent');
+  if (!panel && !accent) return;
+
+  const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (mqReduce.matches) {
+    if (panel) panel.classList.add('graphic-panel--enter');
+    if (accent) accent.classList.add('hero-square-accent--enter');
+    return;
+  }
+
+  setTimeout(function () {
+    if (panel) panel.classList.add('graphic-panel--enter');
+    if (accent) accent.classList.add('hero-square-accent--enter');
+  }, 220);
+});
 
 /* ── Hero bio — typewriter effect ─────────────────────────────────── */
-(function () {
+whenPageRevealed(function () {
   const bio = document.querySelector('.hero-bio');
   if (!bio) return;
 
@@ -563,7 +627,7 @@ document.addEventListener('DOMContentLoaded', initPortfolioWorksGallery);
   }
 
   setTimeout(revealNext, START_DELAY);
-})();
+});
 
 /* ── Foldkor forgás — lassú alap, enyhe közelség-felgyorsítás a panel közepén ─ */
 (function () {
